@@ -12,12 +12,12 @@ export enum IsActive {
     BLOCKED = "BLOCKED"
 }
 export interface IUser {
+    toObject(): { [x: string]: any; password: any; };
     _id?: Types.ObjectId,
     name: string;
     email: string;
     password: string;
     role: Role;
-    isBlocked?: boolean;
     address?: string;
     isDeleted?: string;
     isActive?: IsActive;
