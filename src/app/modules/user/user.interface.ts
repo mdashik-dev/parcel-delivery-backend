@@ -3,13 +3,22 @@ import { Types } from "mongoose";
 export enum Role {
     ADMIN = "ADMIN",
     SENDER = "SENDER",
-    RECEIVER = "RECEIVER"
+    RECEIVER = "RECEIVER",
+    DELIVERY_MAN = "DELIVERY_MAN"
 }
 
 export enum IsActive {
     ACTIVE = "ACTIVE",
     INACTIVE = "INACTIVE",
     BLOCKED = "BLOCKED"
+}
+
+export interface IAuthUser {
+    userId: string;
+    email: string;
+    role: Role;
+    iat: number;
+    exp: number;
 }
 export interface IUser {
     toObject(): { [x: string]: any; password: any; };

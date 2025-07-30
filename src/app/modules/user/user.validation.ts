@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Role } from "./user.interface";
 
 export const createUserZodSchema = z.object({
   body: z.object({
@@ -24,7 +25,7 @@ export const createUserZodSchema = z.object({
         "Password must contain uppercase, lowercase, number, and special character"
       ),
 
-    role: z.enum(["ADMIN", "SENDER", "RECEIVER"], {
+    role: z.enum([...Object.values(Role)] as [string, ...string[]], {
       required_error: "Role is required",
     }),
   }),
