@@ -12,7 +12,7 @@ app.use("/api/v1", router)
 
 app.get("/", (req: Request, res: Response) => {
     res.status(200).json({
-        message: "Welcome to Percel Delivery Software Backend :)"
+        message: "Welcome to Parcel Delivery Software Backend :)"
     })
 })
 

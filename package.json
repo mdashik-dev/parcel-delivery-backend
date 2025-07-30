@@ -26,12 +26,14 @@
     "typescript-eslint": "^8.35.1"
   },
   "dependencies": {
+    "@types/crypto-js": "^4.2.2",
     "@types/ejs": "^3.1.5",
     "@types/nodemailer": "^6.4.17",
     "axios": "^1.10.0",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
     "dotenv": "^17.0.1",
     "ejs": "^3.1.10",
     "express": "^5.1.0",

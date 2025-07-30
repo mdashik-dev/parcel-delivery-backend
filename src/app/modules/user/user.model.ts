@@ -6,7 +6,6 @@ const UserSchema = new Schema<IUser>({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     role: { type: String, enum: Object.values(Role), required: true },
-    isBlocked: { type: Boolean, default: false },
     address: { type: String },
     isDeleted: { type: Boolean, default: false },
     isActive: {
@@ -14,7 +13,7 @@ const UserSchema = new Schema<IUser>({
         enum: Object.values(IsActive),
         default: IsActive.ACTIVE,
     },
-    isVerified: { type: Boolean, default: false },
+    isVerified: { type: Boolean, default: true },
 }, { timestamps: true });
 
 export const User = model<IUser>("User", UserSchema)
