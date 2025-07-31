@@ -30,3 +30,14 @@ export const createUserZodSchema = z.object({
     }),
   }),
 });
+
+
+export const blockUserZodSchema = z.object({
+  params: z.object({
+    id: z
+      .string({
+        required_error: "User ID is required",
+      })
+      .regex(/^[a-f\d]{24}$/i, "Invalid user ID format"),
+  }),
+});
