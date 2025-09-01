@@ -52,19 +52,21 @@ const getMyParcels = catchAsync(async (req: Request, res: Response) => {
         });
     }
 
-    const parcels = await parcelServices.getMyParcels(user);
+    const parcels = await parcelServices.getMyParcels(user, req.query as Record<string, string>);
 
     sendResponse<IParcel[]>(res, {
         success: true,
         statusCode: httpStatus.OK,
         message: "Parcels fetched successfully",
-        data: parcels,
+        data: parcels.data,
+        meta: parcels.meta
     });
 });
 
 const cancelParcel = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
     const userId = req.user?.userId;
+    const user = req.user as Partial<IAuthUser> | undefined;
 
     if (!userId) {
         return sendResponse<IParcel[]>(res, {
@@ -75,7 +77,7 @@ const cancelParcel = catchAsync(async (req: Request, res: Response) => {
         });
     }
 
-    const canceledParcel = await parcelServices.cancelParcel(id, userId);
+    const canceledParcel = await parcelServices.cancelParcel(id, user as IAuthUser);
 
     sendResponse<IParcel>(res, {
         success: true,

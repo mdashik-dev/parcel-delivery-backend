@@ -60,26 +60,40 @@ export const getAllParcels = async (query: Record<string, string>) => {
     };
 };
 
-export const getMyParcels = async (user: Partial<IAuthUser>): Promise<IParcel[]> => {
+export const getMyParcels = async (user: Partial<IAuthUser>, query: Record<string, string> = {}) => {
     if (!user || !user.userId) {
         throw new AppError(httpStatus.UNAUTHORIZED, "User not authenticated");
     }
-    let query = {};
-    if (user.role === Role.SENDER) {
-        query = { senderId: user.userId };
-    } else if (user.role === Role.RECEIVER) {
-        query = { receiverId: user.userId };
-    } else {
-        throw new AppError(httpStatus.FORBIDDEN, 'Only sender or receiver can access this route');
-    }
-    const parcels = await Parcel.find(query);
 
-    return parcels.map(parcel => parcel.toObject());
+    let baseQuery = Parcel.find();
+    if (user.role === Role.SENDER) {
+        baseQuery = Parcel.find({ senderId: user.userId })
+            .populate("senderId", "name email")
+            .populate("receiverId", "name email");
+    } else if (user.role === Role.RECEIVER) {
+        baseQuery = Parcel.find({ receiverId: user.userId })
+            .populate("senderId", "name email")
+            .populate("receiverId", "name email");
+    } else {
+        throw new AppError(httpStatus.FORBIDDEN, "Only sender or receiver can access this route");
+    }
+
+    const queryBuilder = new QueryBuilder<IParcel>(baseQuery, query);
+
+    const parcelsQuery = queryBuilder
+        .paginate();
+
+    const [data, meta] = await Promise.all([parcelsQuery.build(), queryBuilder.getMeta()]);
+    return {
+        data,
+        meta,
+    };
 };
 
 
-export const cancelParcel = async (parcelId: string, userId: string): Promise<IParcel> => {
-    const parcel = await Parcel.findOne({ _id: parcelId, senderId: userId });
+export const cancelParcel = async (parcelId: string, user: IAuthUser): Promise<IParcel> => {
+    const parcel = await Parcel.findOne({ _id: parcelId, senderId: user.userId });
+    const userInfo = await User.findById(user.userId);
 
     if (!parcel) {
         throw new AppError(httpStatus.NOT_FOUND, "Parcel not found or unauthorized");
@@ -95,8 +109,8 @@ export const cancelParcel = async (parcelId: string, userId: string): Promise<IP
     parcel.statusLogs.push({
         status: IParcelStatus.Canceled,
         timestamp: new Date(),
-        updatedBy: new Types.ObjectId(userId),
-        note: "Parcel canceled by user",
+        updatedBy: new Types.ObjectId(user.userId),
+        note: `Parcel canceled by ${userInfo?.name || 'User'}`,
     });
 
     await parcel.save();
@@ -156,12 +170,16 @@ const getIParcelStatusLogs = async (parcelId: string): Promise<IStatusLog[]> => 
     return parcel.statusLogs;
 };
 
-const validStatusFlow: Record<string, string> = {
-    Requested: IParcelStatus.Approved,
-    Approved: IParcelStatus.Dispatched,
-    Dispatched: IParcelStatus.InTransit,
-    "In Transit": IParcelStatus.Delivered
+const validStatusFlow: Record<IParcelStatus, IParcelStatus[]> = {
+    Requested: [IParcelStatus.Approved, IParcelStatus.Canceled],
+    Approved: [IParcelStatus.Dispatched],
+    Dispatched: [IParcelStatus.InTransit],
+    "In Transit": [IParcelStatus.Delivered],
+    Delivered: [],
+    Canceled: [],
 };
+
+
 
 const updateIParcelStatus = async (parcelId: string, newStatus: IParcelStatus, updatedBy: Types.ObjectId, location?: string, note?: string): Promise<IParcel> => {
     const parcel = await Parcel.findById(parcelId);
@@ -182,13 +200,14 @@ const updateIParcelStatus = async (parcelId: string, newStatus: IParcelStatus, u
         throw new AppError(httpStatus.BAD_REQUEST, `Parcel is already marked as '${newStatus}'`);
     }
 
-    const expectedNextStatus = validStatusFlow[parcel.currentStatus];
-    if (expectedNextStatus !== newStatus) {
+    const expectedNextStatuses = validStatusFlow[parcel.currentStatus] || [];
+    if (!expectedNextStatuses.includes(newStatus)) {
         throw new AppError(
             httpStatus.BAD_REQUEST,
-            `Invalid status transition from '${parcel.currentStatus}' to '${newStatus}'. Expected next status: '${expectedNextStatus}'.`
+            `Invalid status transition from '${parcel.currentStatus}' to '${newStatus}'. Allowed next statuses: [${expectedNextStatuses.join(", ")}].`
         );
     }
+
 
     const newLog: IStatusLog = {
         status: newStatus,

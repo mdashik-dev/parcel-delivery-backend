@@ -3,12 +3,21 @@ import express, { Request, Response } from "express";
 import { router } from "./app/route";
 import { globalErrorHandler } from "./app/middlewares/globalErrorHandler";
 import { swaggerSpec, swaggerUi } from "./app/config/swaggerConfig";
+import { envVars } from "./app/config/env";
+import cookieParser from "cookie-parser";
 
 
 const app = express()
 
+app.use(cookieParser());
 app.use(express.json())
-app.use(cors())
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/api/v1", router)

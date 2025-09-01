@@ -8,9 +8,8 @@ import { User } from "../modules/user/user.model";
 import { verifyToken } from "../utils/jwt";
 
 export const checkAuth = (...authRoles: string[]) => async (req: Request, res: Response, next: NextFunction) => {
-
     try {
-        const accessToken = req.headers.authorization?.split("BEARER ")[1];
+        const accessToken = req.headers.authorization?.split("BEARER ")[1] || req.cookies?.accessToken;
 
         if (!accessToken) {
             throw new AppError(403, "No Token Recieved")
