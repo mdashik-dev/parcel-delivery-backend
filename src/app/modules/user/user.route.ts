@@ -105,7 +105,9 @@ router.post(
  *         description: Forbidden – Requires ADMIN role
  */
 
+router.get("/me", checkAuth(...Object.keys(Role)), UserControllers.getMe);
 router.get("/all-users", checkAuth(Role.ADMIN), UserControllers.getAllUsers);
+router.get("/get-all-receivers", checkAuth(Role.SENDER), UserControllers.getAllRecievers);
 
 /**
  * @swagger

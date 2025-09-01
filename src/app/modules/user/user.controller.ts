@@ -3,30 +3,55 @@ import { catchAsync } from "../../utils/catchAsync"
 import { sendResponse } from "../../utils/sendResponse"
 import { UserServices } from "./user.service"
 import httpStatus from "http-status-codes"
+import { JwtPayload } from "jsonwebtoken"
 
 const createUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
-    const user = await UserServices.createUser(req.body)
+  const user = await UserServices.createUser(req.body)
 
-    sendResponse(res, {
-        success: true,
-        statusCode: httpStatus.CREATED,
-        message: "User Created Successfully",
-        data: user,
-    })
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "User Created Successfully",
+    data: user,
+  })
 })
 
-const getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const query = req.query;
-    const result = await UserServices.getAllUsers(query as Record<string, string>);
+const getMe = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const decodedToken = req.user as JwtPayload
+  const result = await UserServices.getMe(decodedToken.userId);
 
-    sendResponse(res, {
-        success: true,
-        statusCode: httpStatus.CREATED,
-        message: "All Users Retrieved Successfully",
-        data: result.data,
-        meta: result.meta
-    })
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "Your profile Retrieved Successfully",
+    data: result.data
+  })
+})
+const getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const query = req.query;
+  const result = await UserServices.getAllUsers(query as Record<string, string>);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "All Users Retrieved Successfully",
+    data: result.data,
+    meta: result.meta
+  })
+})
+
+const getAllRecievers = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const query = { role: 'RECEIVER' };
+  const result = await UserServices.getAllUsers(query as Record<string, string>);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "All Users Retrieved Successfully",
+    data: result.data,
+    meta: result.meta
+  })
 })
 
 
@@ -54,8 +79,10 @@ const unblockUser = catchAsync(async (req: Request, res: Response, next: NextFun
   });
 });
 export const UserControllers = {
-    createUser,
-    getAllUsers,
-    blockUser,
-    unblockUser
+  createUser,
+  getMe,
+  getAllUsers,
+  getAllRecievers,
+  blockUser,
+  unblockUser
 }

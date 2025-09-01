@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 dotenv.config()
 
 interface EnvConfig {
+    CLIENT_URL: string,
     PORT: string,
     DB_URL: string,
     NODE_ENV: "development" | "production",
@@ -16,7 +17,7 @@ interface EnvConfig {
 }
 
 const loadEnvVariables = (): EnvConfig => {
-    const requiredEnvVariables: string[] = ["PORT", "DB_URL", "NODE_ENV", "BCRYPT_SALT_ROUNDS", "JWT_ACCESS_SECRET", "JWT_ACCESS_EXPIRES", "JWT_REFRESH_SECRET", "JWT_REFRESH_EXPIRES"];
+    const requiredEnvVariables: string[] = ["CLIENT_URL", "PORT", "DB_URL", "NODE_ENV", "BCRYPT_SALT_ROUNDS", "JWT_ACCESS_SECRET", "JWT_ACCESS_EXPIRES", "JWT_REFRESH_SECRET", "JWT_REFRESH_EXPIRES"];
 
     requiredEnvVariables.forEach(key => {
         if (!process.env[key]) {
@@ -25,6 +26,7 @@ const loadEnvVariables = (): EnvConfig => {
     })
 
     return {
+        CLIENT_URL: process.env.CLIENT_URL as string,
         PORT: process.env.PORT as string,
         DB_URL: process.env.DB_URL!,
         NODE_ENV: process.env.NODE_ENV as "development" | "production",

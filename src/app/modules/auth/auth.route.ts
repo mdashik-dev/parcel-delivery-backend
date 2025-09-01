@@ -192,5 +192,5 @@ const router = Router();
  *         description: Invalid credentials
  */
 router.post("/login", AuthControllers.loginUser);
-
+router.post("/logout", AuthControllers.logout)
 export const AuthRoutes = router;

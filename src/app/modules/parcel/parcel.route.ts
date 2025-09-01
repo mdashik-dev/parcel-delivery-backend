@@ -402,7 +402,7 @@ router.patch("/confirm/:id", checkAuth(Role.RECEIVER), validateReceiverParcelOwn
  *         description: Parcel not found
  */
 
-router.patch("/update-status/:id", checkAuth(Role.ADMIN, Role.DELIVERY_MAN), ParcelControllers.updateParcelStatus)
+router.patch("/update-status/:id", checkAuth(Role.ADMIN, Role.RECEIVER, Role.DELIVERY_MAN), ParcelControllers.updateParcelStatus)
 
 /**
  * @swagger

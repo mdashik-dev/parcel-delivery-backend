@@ -27,6 +27,12 @@ export const createUser = async (payload: Partial<IUser>) => {
     return user
 
 }
+const getMe = async (userId: string) => {
+    const user = await User.findById(userId).select("-password");
+    return {
+        data: user
+    }
+};
 const getAllUsers = async (query: Record<string, string>) => {
     const queryBuilder = new QueryBuilder(User.find(), query)
     const usersData = queryBuilder
@@ -84,6 +90,7 @@ export const unblockUser = async (userId: string) => {
 };
 export const UserServices = {
     createUser,
+    getMe,
     getAllUsers,
     blockUser,
     unblockUser
