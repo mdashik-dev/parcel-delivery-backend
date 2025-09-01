@@ -10,7 +10,6 @@ A RESTful backend API for managing parcel creation, tracking, status updates, us
 https://parcel-delivery-backend-blush.vercel.app
 ```
 
-> Replace with your actual deployed URL.
 
 ---
 
